@@ -3,7 +3,7 @@ const app = express();
 const { MongoClient, ServerApiVersion } = require('mongodb');
 require('dotenv').config()
 const cors = require('cors');
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 3000;
 
 // middleware
 app.use(cors());
@@ -12,9 +12,6 @@ app.use(express.json())
 // webLibrary
 // SFlEbnE4CVF9YSVB
 
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
 
 // console.log(process.env.DB_NAME);
 // console.log(process.env.DB_PASS);
@@ -35,6 +32,23 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+
+    const bookCollection = client.db('bookLibrary').collection('books');
+
+    app.get('/books', async (req, res) => {
+      const cursor = bookCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+
+    })
+
+    app.post('/books', async (req, res) => {
+      const newBook = req.body;
+      console.log(newBook);
+      const result = await bookCollection.insertOne(newBook);
+      res.send(result);
+    })
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
@@ -45,7 +59,10 @@ async function run() {
 }
 run().catch(console.dir);
 
+app.get('/', (req, res) => {
+  res.send('Server is running')
+})
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+  console.log(`Web Library listening on port ${port}`)
 })
