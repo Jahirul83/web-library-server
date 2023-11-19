@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const cors = require('cors');
 const port = process.env.PORT || 3000;
@@ -48,6 +48,33 @@ async function run() {
       const result = await bookCollection.insertOne(newBook);
       res.send(result);
     })
+    app.get('/books/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await bookCollection.findOne(query);
+      res.send(result)
+    })
+
+    app.patch('/books/:id', async (req, res) => {
+      id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedBook = req.body;
+      const Book = {
+          $set: {
+              title: updatedBook.title,
+              quantity: updatedBook.quantity,
+              author: updatedBook.author,
+              category: updatedBook.category,
+              rating: updatedBook.rating,
+              short_description: updatedBook.short_description,
+              image: updatedBook.image,
+              available: updatedBook.available
+          }
+      }
+      const result = await bookCollection.updateOne(filter, Book, options)
+      res.send(result);
+  })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
