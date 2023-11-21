@@ -3,7 +3,7 @@ const app = express();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const cors = require('cors');
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 
 // middleware
 app.use(cors());
@@ -34,6 +34,7 @@ async function run() {
     await client.connect();
 
     const bookCollection = client.db('bookLibrary').collection('books');
+    const borrowBooksCollection = client.db('bookLibrary').collection('borrowBooks');
 
     app.get('/books', async (req, res) => {
       const cursor = bookCollection.find();
@@ -41,6 +42,7 @@ async function run() {
       res.send(result);
 
     })
+
 
     app.post('/books', async (req, res) => {
       const newBook = req.body;
@@ -61,20 +63,38 @@ async function run() {
       const options = { upsert: true };
       const updatedBook = req.body;
       const Book = {
-          $set: {
-              title: updatedBook.title,
-              quantity: updatedBook.quantity,
-              author: updatedBook.author,
-              category: updatedBook.category,
-              rating: updatedBook.rating,
-              short_description: updatedBook.short_description,
-              image: updatedBook.image,
-              available: updatedBook.available
-          }
+        $set: {
+          title: updatedBook.title,
+          quantity: updatedBook.quantity,
+          author: updatedBook.author,
+          category: updatedBook.category,
+          rating: updatedBook.rating,
+          short_description: updatedBook.short_description,
+          image: updatedBook.image,
+          available: updatedBook.available
+        }
       }
       const result = await bookCollection.updateOne(filter, Book, options)
       res.send(result);
-  })
+    })
+
+
+    // borrowBooks
+    app.get('/borrowBooks', async (req, res) => {
+      const cursor = borrowBooksCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+
+    })
+
+    app.post('/borrowBooks', async (req, res) => {
+      const newBook = req.body;
+      // console.log(newBook);
+      const result = await  borrowBooksCollection.insertOne(newBook);
+      res.send(result);
+    })
+
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
