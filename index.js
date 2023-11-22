@@ -36,27 +36,40 @@ async function run() {
     const bookCollection = client.db('bookLibrary').collection('books');
     const borrowBooksCollection = client.db('bookLibrary').collection('borrowBooks');
 
-    app.get('/books', async (req, res) => {
-      const cursor = bookCollection.find();
-      const result = await cursor.toArray();
-      res.send(result);
+    try {
+      app.get('/books', async (req, res) => {
+        const cursor = bookCollection.find();
+        const result = await cursor.toArray();
+        res.send(result);
+  
+      })
+    } catch (error) {
+      console.log(error)
+    }
 
-    })
 
-
+   try {
     app.post('/books', async (req, res) => {
       const newBook = req.body;
       console.log(newBook);
       const result = await bookCollection.insertOne(newBook);
       res.send(result);
     })
-    app.get('/books/:id', async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: new ObjectId(id) };
-      const result = await bookCollection.findOne(query);
-      res.send(result)
-    })
+   } catch (error) {
+    console.log(error)
+   }
+    try {
+      app.get('/books/:id', async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const result = await bookCollection.findOne(query);
+        res.send(result)
+      })
+    } catch (error) {
+      console.log(error)
+    }
 
+   try {
     app.patch('/books/:id', async (req, res) => {
       id = req.params.id;
       const filter = { _id: new ObjectId(id) };
@@ -77,22 +90,33 @@ async function run() {
       const result = await bookCollection.updateOne(filter, Book, options)
       res.send(result);
     })
+   } catch (error) {
+    console.log(error)
+   }
 
 
     // borrowBooks
-    app.get('/borrowBooks', async (req, res) => {
-      const cursor = borrowBooksCollection.find();
-      const result = await cursor.toArray();
-      res.send(result);
+    try {
+      app.get('/borrowBooks', async (req, res) => {
+        const cursor = borrowBooksCollection.find();
+        const result = await cursor.toArray();
+        res.send(result);
+  
+      })
+    } catch (error) {
+      console.log(error)
+    }
 
-    })
-
-    app.post('/borrowBooks', async (req, res) => {
-      const newBook = req.body;
-      // console.log(newBook);
-      const result = await  borrowBooksCollection.insertOne(newBook);
-      res.send(result);
-    })
+    try {
+      app.post('/borrowBooks', async (req, res) => {
+        const newBook = req.body;
+        // console.log(newBook);
+        const result = await  borrowBooksCollection.insertOne(newBook);
+        res.send(result);
+      })
+    } catch (error) {
+      console.log(error)
+    }
 
 
 
