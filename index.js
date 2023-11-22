@@ -6,6 +6,14 @@ const cors = require('cors');
 const port = process.env.PORT || 5000;
 
 // middleware
+app.use(cors({
+  origin: [
+    // 'http://localhost:5173', 'http://localhost:5174'
+    'https://web-library-772a4.web.app',
+    
+  ],
+  credentials: true
+}));
 app.use(cors());
 app.use(express.json())
 
