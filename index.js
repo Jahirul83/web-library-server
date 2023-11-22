@@ -28,111 +28,124 @@ const client = new MongoClient(uri, {
   }
 });
 
-async function run() {
+const dbConnect = async () => {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
-
-    const bookCollection = client.db('bookLibrary').collection('books');
-    const borrowBooksCollection = client.db('bookLibrary').collection('borrowBooks');
-
-    try {
-      app.get('/books', async (req, res) => {
-        const cursor = bookCollection.find();
-        const result = await cursor.toArray();
-        res.send(result);
-  
-      })
-    } catch (error) {
-      console.log(error)
-    }
-
-
-   try {
-    app.post('/books', async (req, res) => {
-      const newBook = req.body;
-      console.log(newBook);
-      const result = await bookCollection.insertOne(newBook);
-      res.send(result);
-    })
-   } catch (error) {
-    console.log(error)
-   }
-    try {
-      app.get('/books/:id', async (req, res) => {
-        const id = req.params.id;
-        const query = { _id: new ObjectId(id) };
-        const result = await bookCollection.findOne(query);
-        res.send(result)
-      })
-    } catch (error) {
-      console.log(error)
-    }
-
-   try {
-    app.patch('/books/:id', async (req, res) => {
-      id = req.params.id;
-      const filter = { _id: new ObjectId(id) };
-      const options = { upsert: true };
-      const updatedBook = req.body;
-      const Book = {
-        $set: {
-          title: updatedBook.title,
-          quantity: updatedBook.quantity,
-          author: updatedBook.author,
-          category: updatedBook.category,
-          rating: updatedBook.rating,
-          short_description: updatedBook.short_description,
-          image: updatedBook.image,
-          available: updatedBook.available
-        }
-      }
-      const result = await bookCollection.updateOne(filter, Book, options)
-      res.send(result);
-    })
-   } catch (error) {
-    console.log(error)
-   }
-
-
-    // borrowBooks
-    try {
-      app.get('/borrowBooks', async (req, res) => {
-        const cursor = borrowBooksCollection.find();
-        const result = await cursor.toArray();
-        res.send(result);
-  
-      })
-    } catch (error) {
-      console.log(error)
-    }
-
-    try {
-      app.post('/borrowBooks', async (req, res) => {
-        const newBook = req.body;
-        // console.log(newBook);
-        const result = await  borrowBooksCollection.insertOne(newBook);
-        res.send(result);
-      })
-    } catch (error) {
-      console.log(error)
-    }
-
-
-
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
-    // await client.close();
+    client.connect()
+    console.log('DB Connected Successfully✅')
+  } catch (error) {
+    console.log(error.name, error.message)
   }
 }
-run().catch(console.dir);
+dbConnect();
+
+const bookCollection = client.db('bookLibrary').collection('books');
+const borrowBooksCollection = client.db('bookLibrary').collection('borrowBooks');
+
 
 app.get('/', (req, res) => {
   res.send('Server is running')
 })
+
+
+
+app.get('/books', async (req, res) => {
+  try {
+    const cursor = bookCollection.find();
+    const result = await cursor.toArray();
+    res.send(result);
+  }
+  catch (error) {
+    console.log(error)
+  }
+
+})
+
+
+
+
+app.post('/books', async (req, res) => {
+  try {
+    const newBook = req.body;
+    console.log(newBook);
+    const result = await bookCollection.insertOne(newBook);
+    res.send(result);
+  }
+  catch (error) {
+    console.log(error)
+  }
+})
+
+
+app.get('/books/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const query = { _id: new ObjectId(id) };
+    const result = await bookCollection.findOne(query);
+    res.send(result)
+  }
+  catch (error) {
+    console.log(error)
+  }
+})
+
+
+
+app.patch('/books/:id', async (req, res) => {
+  try {
+    id = req.params.id;
+    const filter = { _id: new ObjectId(id) };
+    const options = { upsert: true };
+    const updatedBook = req.body;
+    const Book = {
+      $set: {
+        title: updatedBook.title,
+        quantity: updatedBook.quantity,
+        author: updatedBook.author,
+        category: updatedBook.category,
+        rating: updatedBook.rating,
+        short_description: updatedBook.short_description,
+        image: updatedBook.image,
+        available: updatedBook.available
+      }
+    }
+    const result = await bookCollection.updateOne(filter, Book, options)
+    res.send(result);
+  }
+  catch (error) {
+    console.log(error)
+  }
+})
+
+
+
+
+// borrowBooks
+
+app.get('/borrowBooks', async (req, res) => {
+  try {
+    const cursor = borrowBooksCollection.find();
+    const result = await cursor.toArray();
+    res.send(result);
+  }
+  catch (error) {
+    console.log(error)
+  }
+})
+
+
+
+app.post('/borrowBooks', async (req, res) => {
+  try {
+    const newBook = req.body;
+    // console.log(newBook);
+    const result = await borrowBooksCollection.insertOne(newBook);
+    res.send(result);
+  }
+  catch (error) {
+    console.log(error)
+  }
+})
+
 
 app.listen(port, () => {
   console.log(`Web Library listening on port ${port}`)
